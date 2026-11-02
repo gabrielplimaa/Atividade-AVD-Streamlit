@@ -1,5 +1,7 @@
 # AVD-20262-pratica-streamlit
 
+https://atividade-avd-app-p3rcyhyjqbniupux3ur3f9.streamlit.app/
+
 Repositório utilizado para aula prática relacionada a Streamlit na disciplina Análise e Visualização de Dados da Cesar School no período de 2026.2.
 
 Repositório-modelo das Aulas 21, 22 e 23: construção de dois dashboards em Streamlit a partir da EDA desenvolvida em sala. O deploy dos dashbords ocorrerá via Streamlit Community Cloud e serão os seguintes:

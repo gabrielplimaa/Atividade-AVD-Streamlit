@@ -9,3 +9,7 @@ Esta pasta serve para três propósitos:
 Dica: guarde aqui uma cópia dos prompts que você realmente usou, para preencher a declaração de uso de IA de forma mais simples.
 
 Os rascunhos fazem parte do entregável: não os coloque no `.gitignore`.
+
+
+# Link do Projeto
+https://atividade-avd-app-p3rcyhyjqbniupux3ur3f9.streamlit.app/
