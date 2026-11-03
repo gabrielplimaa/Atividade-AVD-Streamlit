@@ -171,23 +171,31 @@ with col_correlacao:
 with tab2:
     st.subheader("Indicadores Chave de Desempenho (KPIs)")
 
-    # 1. BLOCO DE MÉTRICAS (Quantidade de Músicas, Beats e Tempo)
+    # 1. BLOCO DE MÉTRICAS COM LEGENDA EXPLICATIVA (sem sobrepor texto)
     m1, m2, m3 = st.columns(3)
 
     qnt_musicas = len(df_filtrado)
-    m1.metric("Quantidade de Músicas", qnt_musicas)
+    with m1:
+        st.metric("Quantidade de Músicas", qnt_musicas)
+        st.caption("Total de faixas filtradas.")
 
     if "beats" in df_filtrado.columns and not df_filtrado.empty:
         beats_medio = df_filtrado["beats"].mean()
-        m2.metric("Média de Beats", f"{beats_medio:.1f}")
+        with m2:
+            st.metric("Média de Beats", f"{beats_medio:.1f}")
+            st.caption("Média de pulsações por faixa.")
     else:
-        m2.metric("Média de Beats", "N/A")
+        with m2:
+            st.metric("Média de Beats", "N/A")
 
     if "tempo" in df_filtrado.columns and not df_filtrado.empty:
         tempo_medio = df_filtrado["tempo"].mean()
-        m3.metric("Tempo Médio (BPM)", f"{tempo_medio:.1f}")
+        with m3:
+            st.metric("Tempo Médio (BPM)", f"{tempo_medio:.1f}")
+            st.caption("Andamento médio das faixas.")
     else:
-        m3.metric("Tempo Médio (BPM)", "N/A")
+        with m3:
+            st.metric("Tempo Médio (BPM)", "N/A")
 
     st.markdown("---")
     st.subheader("Visualizações Complementares")
@@ -212,7 +220,7 @@ with tab2:
             st.plotly_chart(fig_bar, use_container_width=True)
 
     with c_vis2:
-        # Visual 2: Dispersão (Tempo vs Beats) - Legenda alinhada perfeitamente na direita
+        # Visual 2: Dispersão (Tempo vs Beats)
         if "tempo" in df_filtrado.columns and "beats" in df_filtrado.columns:
             fig_scatter = px.scatter(
                 df_filtrado,
