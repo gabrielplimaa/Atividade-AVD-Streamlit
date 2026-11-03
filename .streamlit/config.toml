@@ -1,20 +1,19 @@
-# Configuração do Streamlit. Descomente e ajuste conforme o projeto avançar.
+# Configuração do Streamlit (.streamlit/config.toml)
 # O tema pode ser trocado pelo menu ⋮ → Settings → Choose app theme.
 
 [theme]
 paddingTop = "0.5rem"     # espaço abaixo da barra do topo (valor entre aspas)
-# font = "sans serif"     # "sans serif", "serif" ou "monospace"
-
-[theme.light]
-primaryColor = "#ff4b4b"            # cor de destaque (widgets, links)
-backgroundColor = "#ffffff"         # fundo da página
-secondaryBackgroundColor = "#f0f2f6"  # fundo da sidebar e de widgets
-textColor = "#31333f"               # cor do texto
-borderColor = "#d5dae5"
 
 [theme.dark]
-primaryColor = "#ff4b4b"
-backgroundColor = "#0e1117"
-secondaryBackgroundColor = "#262730"
-textColor = "#fafafa"
-borderColor = "#41444e"
+primaryColor = "#a855f7"            # Lilás/Roxo vibrante para botões, seleção de abas e destaques
+backgroundColor = "#09090b"         # Fundo principal em preto profundo (Zinc 950)
+secondaryBackgroundColor = "#18181b"  # Fundo da sidebar e componentes em preto/cinza-escuro
+textColor = "#f4f4f5"               # Texto claro para contraste perfeito
+borderColor = "#27272a"             # Bordas sutis em cinza escuro
+
+[theme.light]
+primaryColor = "#9333ea"            # Roxo para o tema claro
+backgroundColor = "#fafafa"         # Fundo principal claro
+secondaryBackgroundColor = "#f3e8ff"  # Fundo levemente arroxeado na sidebar
+textColor = "#18181b"               # Texto escuro
+borderColor = "#e9d5ff"             # Bordas sutis em lilás pastel

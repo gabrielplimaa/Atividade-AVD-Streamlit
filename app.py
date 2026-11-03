@@ -28,7 +28,7 @@ for col in df.columns:
 with st.sidebar:
     st.header("Filtros Globais")
 
-    # 1. Filtro Seletor de Gêneros Musicais (permite escolher livremente)
+    # 1. Filtro Seletor de Gêneros Musicais
     if COL_CLASSE:
         generos_disponiveis = sorted(list(df[COL_CLASSE].dropna().unique()))
         
@@ -97,27 +97,39 @@ tab1, tab2 = st.tabs(["Dashboard 1: Correlação & Distribuição", "Dashboard 2
 with tab1:
     col_correlacao, col_distribuicao = st.columns([1, 1.3])
 
-    with col_correlacao:
-        st.subheader("Correlação")
+with col_correlacao:
+    st.subheader("Correlação")
 
-        if len(variaveis) < 2:
-            st.warning("Selecione pelo menos 2 variáveis na barra lateral.")
-        else:
-            corr = df_filtrado[variaveis].corr()
-            mask = np.tril(np.ones(corr.shape, dtype=bool))
-            corr_triangular = corr.where(mask)
+    if len(variaveis) < 2:
+        st.warning("Selecione pelo menos 2 variáveis na barra lateral.")
+    else:
+        corr = df_filtrado[variaveis].corr()
+        
+        # Máscara triangular abaixo da diagonal (k=-1)
+        mask = np.tril(np.ones(corr.shape, dtype=bool), k=-1)
+        corr_triangular = corr.where(mask)
 
-            fig_corr = px.imshow(
-                corr_triangular,
-                text_auto=".2f",
-                color_continuous_scale="RdBu_r",
-                zmin=-1,
-                zmax=1,
-                aspect="auto",
-                title="Matriz de Correlação Triangular (Pearson)"
-            )
-            fig_corr.update_traces(connectgaps=False)
-            st.plotly_chart(fig_corr, use_container_width=True)
+        # Remove a 1ª linha e a última coluna totalmente vazias
+        corr_triangular = corr_triangular.iloc[1:, :-1]
+
+        # Escala divergente personalizada: -1 (Lilás claro) -> 0 (Neutro escuro) -> +1 (Roxo vibrante)
+        escala_roxo_divergente = [
+            [0.0, "#f3e8ff"],   # -1: Correlação negativa (Lilás claro contrastante)
+            [0.5, "#18181b"],   #  0: Neutro (combina com o fundo escuro)
+            [1.0, "#a855f7"]    # +1: Correlação positiva (Roxo/Lilás vibrante)
+        ]
+
+        fig_corr = px.imshow(
+            corr_triangular,
+            text_auto=".2f",
+            color_continuous_scale=escala_roxo_divergente,
+            zmin=-1,
+            zmax=1,
+            aspect="auto",
+            title="Matriz de Correlação Triangular (sem Diagonal)"
+        )
+        fig_corr.update_traces(connectgaps=False)
+        st.plotly_chart(fig_corr, use_container_width=True)
 
     with col_distribuicao:
         st.subheader("Distribuições das Variáveis")
@@ -137,9 +149,18 @@ with tab1:
                         barmode="overlay" if separar_por_classe else "relative",
                         marginal="box",
                         title=f"Distribuição: {var}",
-                        height=280
+                        height=280,
+                        color_discrete_sequence=px.colors.sequential.Purples_r if not separar_por_classe else px.colors.qualitative.Set2
                     )
-                    fig_hist.update_layout(margin=dict(l=10, r=10, t=40, b=10))
+                    
+                    if not separar_por_classe:
+                        fig_hist.update_traces(marker_color="#a855f7", marker_line_color="#c084fc", marker_line_width=1)
+
+                    fig_hist.update_layout(
+                        margin=dict(l=10, r=10, t=40, b=10),
+                        paper_bgcolor="rgba(0,0,0,0)",
+                        plot_bgcolor="rgba(0,0,0,0)"
+                    )
                     st.plotly_chart(fig_hist, use_container_width=True)
         else:
             st.warning("Selecione pelo menos 1 variável na barra lateral para visualizar as distribuições.")
@@ -171,11 +192,11 @@ with tab2:
     st.markdown("---")
     st.subheader("Visualizações Complementares")
 
-    # 2. BLOCO DE VISUAIS (3 VISUAIS DO DASHBOARD 2)
+    # BLOCO SUPERIOR (Visual 1 e Visual 2 Lado a Lado)
     c_vis1, c_vis2 = st.columns([1, 1])
 
     with c_vis1:
-        # Visual 1 REFORMULADO: Média de Beats por Gênero (Métricas dinâmicas)
+        # Visual 1: Média de Beats por Gênero
         if COL_CLASSE in df_filtrado.columns and "beats" in df_filtrado.columns and not df_filtrado.empty:
             beats_by_genre = df_filtrado.groupby(COL_CLASSE)["beats"].mean().reset_index()
             fig_bar = px.bar(
@@ -187,10 +208,11 @@ with tab2:
                 labels={COL_CLASSE: "Gênero", "beats": "Média de Beats"},
                 text_auto=".1f"
             )
+            fig_bar.update_layout(showlegend=False)
             st.plotly_chart(fig_bar, use_container_width=True)
 
     with c_vis2:
-        # Visual 2: Dispersão (Tempo vs Beats)
+        # Visual 2: Dispersão (Tempo vs Beats) - Legenda alinhada perfeitamente na direita
         if "tempo" in df_filtrado.columns and "beats" in df_filtrado.columns:
             fig_scatter = px.scatter(
                 df_filtrado,
@@ -198,11 +220,22 @@ with tab2:
                 y="beats",
                 color=COL_CLASSE if COL_CLASSE in df_filtrado.columns else None,
                 title="Visual 2: Relação entre Tempo (BPM) e Beats",
-                labels={"tempo": "Tempo (BPM)", "beats": "Beats"}
+                labels={"tempo": "Tempo (BPM)", "beats": "Beats", COL_CLASSE: "Gênero Musical"}
+            )
+            fig_scatter.update_layout(
+                showlegend=True,
+                legend=dict(
+                    title=dict(text="<b>Gênero Musical</b>"),
+                    orientation="v",
+                    yanchor="middle",
+                    y=0.5,
+                    xanchor="left",
+                    x=1.02
+                )
             )
             st.plotly_chart(fig_scatter, use_container_width=True)
 
-    # Visual 3 EXPLICATIVO: Brilho Musical / Agudos por Gênero
+    # BLOCO INFERIOR (Visual 3: Boxplot)
     if "spectral_centroid" in df_filtrado.columns and COL_CLASSE in df_filtrado.columns:
         fig_box = px.box(
             df_filtrado,
@@ -215,4 +248,5 @@ with tab2:
                 "spectral_centroid": "Brilho Espectral (Frequência em Hz)"
             }
         )
+        fig_box.update_layout(showlegend=False)
         st.plotly_chart(fig_box, use_container_width=True)
